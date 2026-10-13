@@ -1,0 +1,7 @@
+.env
+.env.*
+node_modules/
+dist/
+*backup*.json
+*备份*.json
+.DS_Store

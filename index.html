@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f6">
+  <title>Project Notes</title>
+  <style>
+    :root { font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; color: #1e2c2d; background: #f5f7f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid #19867c; outline-offset: 2px; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+    .sidebar { min-height: 100vh; background: #eaf0ee; border-right: 1px solid #d5dfdb; padding: 22px 14px; display: flex; flex-direction: column; gap: 25px; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 11px; font-size: 17px; font-weight: 750; color: #193433; }
+    .brand-mark { width: 29px; height: 29px; flex: none; border-radius: 7px; background: #16786e; position: relative; box-shadow: inset 0 -4px 0 #0e5f58; }
+    .brand-mark::before, .brand-mark::after { content: ""; position: absolute; left: 8px; height: 2px; border-radius: 2px; background: #d8efea; }
+    .brand-mark::before { top: 9px; width: 13px; }.brand-mark::after { top: 16px; width: 9px; }
+    .nav-label { margin: 0 10px 8px; font-size: 11px; font-weight: 750; color: #708482; letter-spacing: 1px; }
+    .project-nav { display: flex; flex-direction: column; gap: 3px; max-height: calc(100vh - 235px); overflow: auto; }
+    .project-nav button { width: 100%; border: 0; background: transparent; text-align: left; display: flex; align-items: center; gap: 10px; padding: 10px 11px; border-radius: 6px; color: #425856; }
+    .project-nav button.active { color: #0e625a; background: #d5e6e0; font-weight: 700; }
+    .project-nav button:hover:not(.active) { background: #e0e9e6; }
+    .project-dot { width: 8px; height: 8px; border-radius: 50%; background: #89a7a0; flex: none; }
+    .project-nav button.active .project-dot { background: #128779; }
+    .project-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .side-action { border: 1px dashed #acc4bc; border-radius: 6px; color: #426b63; background: transparent; padding: 9px 11px; margin: 7px 3px 0; text-align: left; }
+    .side-action:hover { background: #dcebe5; }
+    .sidebar-footer { margin-top: auto; padding: 0 3px; display: grid; gap: 5px; }
+    .footer-button { text-align: left; background: transparent; border: 0; color: #637a75; padding: 9px 10px; border-radius: 6px; font-size: 13px; }
+    .footer-button:hover { background: #dce7e2; color: #21483f; }
+    main { min-width: 0; }
+    .topbar { height: 65px; border-bottom: 1px solid #e1e7e4; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 34px; background: #fafcfb; }
+    .breadcrumb { color: #71817e; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .breadcrumb strong { color: #263b38; font-weight: 650; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn { width: 34px; height: 34px; border: 1px solid transparent; background: transparent; border-radius: 6px; color: #506663; display: inline-flex; align-items: center; justify-content: center; font-size: 19px; line-height: 1; flex: none; }
+    .icon-btn:hover { background: #e9f1ee; border-color: #d5e6df; }
+    .primary { border: 1px solid #126f65; background: #167d72; color: white; padding: 9px 14px; border-radius: 6px; font-weight: 650; white-space: nowrap; }
+    .primary:hover { background: #106a61; }
+    .primary:disabled { opacity: .5; cursor: not-allowed; }
+    .content { max-width: 1400px; margin: 0 auto; padding: 33px 34px 55px; }
+    .heading-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+    h1 { margin: 0; font-size: 27px; line-height: 1.3; font-weight: 750; overflow-wrap: anywhere; }
+    .project-desc { color: #778784; font-size: 13px; margin: 8px 0 0; min-height: 19px; }
+    .subtle-btn { border: 1px solid #d4dfda; background: #fff; padding: 8px 11px; border-radius: 6px; color: #536b65; font-size: 13px; white-space: nowrap; }
+    .subtle-btn:hover { background: #f0f6f2; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 25px 0 28px; }
+    .stat { background: #fff; border: 1px solid #e1e8e4; border-radius: 7px; padding: 15px 17px; min-height: 82px; }
+    .stat-label { color: #768782; font-size: 12px; }.stat-value { margin-top: 8px; font-weight: 750; font-size: 24px; line-height: 1; }
+    .stat:nth-child(2) .stat-value { color: #117e71; }.stat:nth-child(3) .stat-value { color: #ae7727; }.stat:nth-child(4) .stat-value { color: #bd5e4f; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 21px; align-items: start; }
+    .list-pane { min-width: 0; }.section-title { font-size: 16px; margin: 0 0 14px; font-weight: 700; }
+    .search-tools { display: flex; gap: 9px; margin-bottom: 13px; }
+    .search-wrap { position: relative; flex: 1; min-width: 0; }.search-wrap span { position: absolute; top: 10px; left: 12px; color: #849490; font-size: 15px; }
+    .search-wrap input { width: 100%; height: 39px; border: 1px solid #d9e3dd; border-radius: 6px; background: #fff; padding: 0 12px 0 36px; color: #263c38; outline: none; }
+    .search-wrap input:focus { border-color: #3caa99; }
+    select { height: 39px; border: 1px solid #d9e3dd; border-radius: 6px; background: #fff; padding: 0 9px; color: #455d57; }
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid #dce5df; margin-bottom: 13px; overflow-x: auto; }
+    .tab { border: 0; background: transparent; padding: 10px 13px 11px; color: #778982; white-space: nowrap; border-bottom: 2px solid transparent; font-size: 13px; }
+    .tab.active { color: #16786e; font-weight: 700; border-color: #168c7d; }
+    .tab:hover { color: #245a50; }
+    .result-line { font-size: 12px; color: #94a29d; margin: 0 0 9px; }
+    .entry-list { display: grid; gap: 8px; }
+    .entry { width: 100%; text-align: left; border: 1px solid #e2e8e4; border-radius: 7px; background: white; padding: 14px 16px; display: grid; gap: 9px; color: inherit; }
+    .entry:hover { border-color: #abcfc2; background: #fcfefd; }.entry.selected { border-color: #57ab99; box-shadow: 0 0 0 1px #83c2b2; }
+    .entry-head { display: flex; align-items: center; gap: 8px; min-width: 0; }.entry-title { font-size: 14px; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.pin { color: #d18b32; font-size: 15px; }
+    .badge { border-radius: 4px; padding: 3px 6px; font-size: 11px; font-weight: 650; white-space: nowrap; }
+    .badge.note { background: #e9f0ee; color: #53776d; }.badge.idea { background: #fff0d6; color: #986e23; }.badge.issue { background: #fae9e5; color: #a85b4c; }
+    .entry-summary { color: #748580; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .entry-meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; color: #97a49f; font-size: 11px; }.meta-sep { color: #c7d0cb; }.tag { color: #618279; background: #edf4f0; padding: 2px 5px; border-radius: 3px; }
+    .detail { position: sticky; top: 20px; background: #fff; border: 1px solid #e1e8e4; border-radius: 7px; min-height: 360px; padding: 19px; }
+    .detail-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }.detail-actions { display: flex; gap: 2px; }
+    .detail h2 { font-size: 20px; line-height: 1.4; margin: 16px 0 13px; overflow-wrap: anywhere; }
+    .detail-info { display: grid; grid-template-columns: 56px 1fr; gap: 10px 8px; font-size: 12px; align-items: center; color: #83928c; padding: 0 0 18px; border-bottom: 1px solid #e8eeea; }
+    .detail-info strong { color: #4b615b; font-weight: 550; }.status { display: inline-flex; align-items: center; gap: 5px; }.status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #e0a947; }.status.done::before { background: #6ca993; }.status.in_progress::before { background: #70a2c0; }
+    .detail-body { white-space: pre-wrap; overflow-wrap: anywhere; color: #485c55; font-size: 13px; line-height: 1.8; padding-top: 15px; min-height: 120px; }
+    .detail-footer { display: flex; gap: 8px; justify-content: space-between; border-top: 1px solid #e8eeea; padding-top: 14px; }
+    .danger-text { color: #ae5d50; }.empty { text-align: center; border: 1px dashed #d5e1da; border-radius: 7px; padding: 46px 20px; background: #fbfdfc; }
+    .empty-symbol { display: block; font-size: 26px; color: #69a494; margin-bottom: 12px; }.empty h3 { margin: 0; font-size: 15px; }.empty p { color: #82928b; font-size: 12px; margin: 8px 0 19px; }
+    .detail-placeholder { height: 100%; min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a59e; text-align: center; gap: 8px; font-size: 12px; }.detail-placeholder span { font-size: 27px; color: #bfd0c8; }
+    dialog { border: 1px solid #d4e1da; border-radius: 9px; padding: 0; width: min(520px, calc(100vw - 28px)); max-height: calc(100vh - 30px); box-shadow: 0 18px 70px #243a3440; color: #243b35; }
+    dialog::backdrop { background: #142b2770; }.modal-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid #e8eeea; }.modal-head h2 { margin: 0; font-size: 17px; }.modal-body { padding: 20px 22px; overflow-y: auto; max-height: calc(100vh - 160px); }
+    .field { display: grid; gap: 7px; margin-bottom: 16px; }.field label { font-size: 12px; font-weight: 700; color: #506961; }.field input, .field textarea, .field select { width: 100%; border: 1px solid #d8e3dc; background: #fff; border-radius: 6px; color: #273f37; padding: 9px 10px; outline: none; }.field input:focus, .field textarea:focus, .field select:focus { border-color: #4ba999; }.field textarea { min-height: 145px; resize: vertical; line-height: 1.55; }.field small { color: #899891; font-size: 11px; }
+    .field-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }.modal-foot { display: flex; justify-content: flex-end; gap: 9px; padding: 13px 22px 18px; }.secondary { border: 1px solid #d5e1da; color: #526c63; background: #fff; padding: 9px 13px; border-radius: 6px; }
+    .mobile-menu { display: none; }.toast { position: fixed; right: 22px; bottom: 22px; padding: 11px 16px; border-radius: 6px; background: #24443b; color: white; box-shadow: 0 10px 25px #1b3d322e; z-index: 20; font-size: 13px; }
+    .cloud-button, #cloudDialog { display: none; }
+    @media (max-width: 1080px) { .workspace { grid-template-columns: minmax(0, 1fr) 310px; }.content { padding: 27px 24px 45px; }.topbar { padding: 0 24px; } }
+    @media (max-width: 760px) { .app { display: block; }.sidebar { display: none; position: fixed; z-index: 10; top: 0; bottom: 0; left: 0; width: min(270px, 80vw); box-shadow: 12px 0 36px #20372f25; }.sidebar.open { display: flex; }.mobile-menu { display: inline-flex; }.topbar { padding: 0 16px; height: 58px; }.content { padding: 25px 16px 40px; }.workspace { display: block; }.detail { display: none; }.detail.mobile-open { display: block; position: fixed; z-index: 8; inset: 58px 0 0; overflow-y: auto; border-radius: 0; border: 0; padding: 21px; }.stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 22px 0; }.stat { min-height: 76px; }.heading-row { gap: 12px; }.search-tools { flex-wrap: wrap; }.search-wrap { flex-basis: 100%; }.search-tools select { flex: 1; min-width: 0; }.desktop-only { display: none; } }
+    @media (max-width: 420px) { .top-actions .primary { padding: 8px 10px; }.field-row { grid-template-columns: 1fr 1fr; }.field-row .field:last-child { grid-column: 1 / -1; }.stat { padding: 13px; }.stat-value { font-size: 21px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>项目札记</div>
+      <div><p class="nav-label">项目</p><nav class="project-nav" id="projectNav" aria-label="项目列表"></nav><button class="side-action" id="addProject">＋ 新建项目</button></div>
+      <div class="sidebar-footer"><button class="footer-button" id="exportData">⇩ 导出备份</button><button class="footer-button" id="importData">⇧ 导入备份</button><input id="fileInput" type="file" accept="application/json,.json" hidden></div>
+    </aside>
+    <main>
+      <header class="topbar"><div class="top-actions"><button class="icon-btn mobile-menu" id="menuButton" title="打开项目菜单" aria-label="打开项目菜单">☰</button><div class="breadcrumb">项目 <span aria-hidden="true">/</span> <strong id="breadcrumbName"></strong></div></div><div class="top-actions"><button class="cloud-button" id="cloudButton" type="button">☁ Local</button><button class="icon-btn desktop-only" id="backupButton" title="导出备份" aria-label="导出备份">⇩</button><button class="primary" id="newEntry">＋ 新建条目</button></div></header>
+      <div class="content">
+        <div class="heading-row"><div><h1 id="projectTitle"></h1><p class="project-desc" id="projectDescription"></p></div><button class="subtle-btn" id="editProject">项目设置</button></div>
+        <div class="stats"><div class="stat"><div class="stat-label">全部条目</div><div class="stat-value" id="countAll">0</div></div><div class="stat"><div class="stat-label">笔记</div><div class="stat-value" id="countNotes">0</div></div><div class="stat"><div class="stat-label">想法</div><div class="stat-value" id="countIdeas">0</div></div><div class="stat"><div class="stat-label">待解决问题</div><div class="stat-value" id="countIssues">0</div></div></div>
+        <div class="workspace"><section class="list-pane" aria-label="条目列表"><h2 class="section-title">工作记录</h2><div class="search-tools"><div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索标题、内容或标签" aria-label="搜索条目"></div><select id="statusFilter" aria-label="筛选状态"><option value="all">全部状态</option><option value="open">待处理</option><option value="in_progress">进行中</option><option value="done">已完成</option></select><select id="sortBy" aria-label="排序方式"><option value="updated">最近更新</option><option value="created">最近创建</option><option value="title">按标题</option></select></div><div class="tabs" id="typeTabs" role="tablist" aria-label="条目类型"></div><p class="result-line" id="resultLine"></p><div class="entry-list" id="entryList"></div></section><aside class="detail" id="detail" aria-label="条目详情"></aside></div>
+      </div>
+    </main>
+  </div>
+  <dialog id="entryDialog"><form id="entryForm"><div class="modal-head"><h2 id="entryDialogTitle">新建条目</h2><button type="button" class="icon-btn" data-close="entryDialog" title="关闭" aria-label="关闭">×</button></div><div class="modal-body"><div class="field"><label for="entryTitle">标题</label><input id="entryTitle" name="title" maxlength="120" required placeholder="写下这条记录的主题"></div><div class="field-row"><div class="field"><label for="entryType">类型</label><select id="entryType" name="type"><option value="note">笔记</option><option value="idea">想法</option><option value="issue">问题</option></select></div><div class="field"><label for="entryStatus">状态</label><select id="entryStatus" name="status"><option value="open">待处理</option><option value="in_progress">进行中</option><option value="done">已完成</option></select></div><div class="field"><label for="entryPriority">优先级</label><select id="entryPriority" name="priority"><option value="normal">普通</option><option value="high">重要</option><option value="low">低</option></select></div></div><div class="field"><label for="entryBody">内容</label><textarea id="entryBody" name="body" placeholder="背景、下一步、相关链接……"></textarea></div><div class="field"><label for="entryTags">标签</label><input id="entryTags" name="tags" placeholder="例如：设计, 会议, 待验证"><small>用逗号分隔多个标签</small></div></div><div class="modal-foot"><button type="button" class="secondary" data-close="entryDialog">取消</button><button class="primary" type="submit">保存条目</button></div></form></dialog>
+  <dialog id="projectDialog"><form id="projectForm"><div class="modal-head"><h2 id="projectDialogTitle">新建项目</h2><button type="button" class="icon-btn" data-close="projectDialog" title="关闭" aria-label="关闭">×</button></div><div class="modal-body"><div class="field"><label for="projectName">项目名称</label><input id="projectName" maxlength="60" required placeholder="例如：产品改版"></div><div class="field"><label for="projectSummary">项目说明</label><textarea id="projectSummary" maxlength="300" style="min-height:90px" placeholder="可选"></textarea></div><button type="button" class="secondary danger-text" id="deleteProject" hidden>删除此项目</button></div><div class="modal-foot"><button type="button" class="secondary" data-close="projectDialog">取消</button><button class="primary" type="submit">保存项目</button></div></form></dialog>
+  <dialog id="cloudDialog"><div class="modal-head"><h2>Cloud sync</h2><button type="button" class="icon-btn" data-close="cloudDialog" title="Close" aria-label="Close">×</button></div><div class="modal-body"><p class="cloud-hint">Sign in to access the same notes from your other devices. Set up the Supabase project once, then enter the same project URL and public key on each device. <a href="./CLOUD_SETUP.md" target="_blank" rel="noopener">Setup guide</a></p><div id="cloudMessage" class="cloud-message" hidden></div><div id="cloudConfig"><div class="field"><label for="cloudUrl">Supabase project URL</label><input id="cloudUrl" type="url" placeholder="https://your-project.supabase.co" autocomplete="url"></div><div class="field"><label for="cloudKey">Supabase publishable / anon key</label><input id="cloudKey" type="text" placeholder="sb_publishable_... or eyJ..." autocomplete="off"></div><div class="cloud-controls"><button type="button" class="secondary" id="saveCloudConfig">Save connection</button></div></div><form id="cloudLogin" hidden><div class="field"><label for="cloudEmail">Email</label><input id="cloudEmail" type="email" autocomplete="email" required></div><div class="field"><label for="cloudPassword">Password</label><input id="cloudPassword" type="password" minlength="6" autocomplete="current-password" required></div><div class="cloud-controls"><button type="submit" class="primary" id="signInButton">Sign in</button><button type="button" class="secondary" id="signUpButton">Create account</button></div></form><div id="cloudSignedIn" hidden><p class="cloud-hint" id="cloudAccount"></p><div class="cloud-controls"><button type="button" class="secondary" id="downloadLocalBackup" hidden>Download previous local backup</button><button type="button" class="secondary" id="signOutButton">Sign out</button></div></div><div id="cloudConflict" hidden><p class="cloud-message error">This device has changes that conflict with a newer cloud version. Download a backup before choosing which version to keep.</p><div class="cloud-controls"><button type="button" class="secondary" id="downloadConflict">Download this device’s copy</button><button type="button" class="secondary" id="useCloud">Use cloud version</button><button type="button" class="secondary danger-text" id="replaceCloud">Replace cloud version</button></div></div></div><div class="modal-foot"><button type="button" class="secondary" data-close="cloudDialog">Close</button></div></dialog>
+  <script>
+    const KEY = 'project-notebook-v1';
+    const $ = id => document.getElementById(id);
+    const typeNames = { note: '笔记', idea: '想法', issue: '问题' };
+    const statusNames = { open: '待处理', in_progress: '进行中', done: '已完成' };
+    const priorityNames = { low: '低', normal: '普通', high: '重要' };
+    const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+    const starter = () => { const id = uid(); return { version: 1, activeProjectId: id, projects: [{ id, name: '我的项目', description: '', createdAt: new Date().toISOString() }], entries: [] }; };
+    function load() { try { const value = JSON.parse(localStorage.getItem(KEY)); return validData(value) ? value : starter(); } catch { return starter(); } }
+    function validData(value) { return value && value.version === 1 && Array.isArray(value.projects) && Array.isArray(value.entries) && value.projects.every(p => p && typeof p.id === 'string' && typeof p.name === 'string') && value.entries.every(e => e && typeof e.id === 'string' && typeof e.projectId === 'string' && typeof e.title === 'string' && typeof e.body === 'string' && ['note','idea','issue'].includes(e.type) && ['open','in_progress','done'].includes(e.status) && Array.isArray(e.tags)); }
+    let data = load();
+    let typeFilter = 'all';
+    let selectedId = null;
+    let editingEntryId = null;
+    let editingProjectId = null;
+    const save = () => localStorage.setItem(KEY, JSON.stringify(data));
+    const currentProject = () => data.projects.find(p => p.id === data.activeProjectId) || data.projects[0];
+    const projectEntries = () => data.entries.filter(e => e.projectId === data.activeProjectId);
+    const dateText = iso => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(d); };
+    function toast(message) { document.querySelector('.toast')?.remove(); const box = document.createElement('div'); box.className = 'toast'; box.textContent = message; document.body.append(box); setTimeout(() => box.remove(), 2600); }
+    function node(tag, cls, text) { const el = document.createElement(tag); if (cls) el.className = cls; if (text != null) el.textContent = text; return el; }
+    function renderNav() { const nav = $('projectNav'); nav.replaceChildren(); data.projects.forEach(p => { const btn = node('button', p.id === data.activeProjectId ? 'active' : ''); btn.type = 'button'; btn.append(node('span', 'project-dot'), node('span', 'project-name', p.name)); btn.title = p.name; btn.addEventListener('click', () => { data.activeProjectId = p.id; selectedId = null; typeFilter = 'all'; $('search').value = ''; $('statusFilter').value = 'all'; save(); $('sidebar').classList.remove('open'); render(); }); nav.append(btn); }); }
+    function renderStats(entries) { $('countAll').textContent = entries.length; $('countNotes').textContent = entries.filter(e => e.type === 'note').length; $('countIdeas').textContent = entries.filter(e => e.type === 'idea').length; $('countIssues').textContent = entries.filter(e => e.type === 'issue' && e.status !== 'done').length; }
+    function renderTabs(entries) { const tabs = $('typeTabs'); tabs.replaceChildren(); [['all','全部'],['note','笔记'],['idea','想法'],['issue','问题']].forEach(([key,label]) => { const btn = node('button', 'tab' + (typeFilter === key ? ' active' : ''), label + ' ' + (key === 'all' ? entries.length : entries.filter(e => e.type === key).length)); btn.type = 'button'; btn.setAttribute('role','tab'); btn.setAttribute('aria-selected',typeFilter === key); btn.addEventListener('click', () => { typeFilter = key; render(); }); tabs.append(btn); }); }
+    function filteredEntries(entries) { const query = $('search').value.trim().toLocaleLowerCase(); const status = $('statusFilter').value; const sort = $('sortBy').value; return entries.filter(e => (typeFilter === 'all' || e.type === typeFilter) && (status === 'all' || e.status === status) && (!query || [e.title,e.body,...e.tags].join(' ').toLocaleLowerCase().includes(query))).sort((a,b) => (b.pinned === true) - (a.pinned === true) || (sort === 'title' ? a.title.localeCompare(b.title, 'zh-CN') : new Date(b[sort === 'created' ? 'createdAt' : 'updatedAt']) - new Date(a[sort === 'created' ? 'createdAt' : 'updatedAt']))); }
+    function renderList(entries) { const list = $('entryList'); list.replaceChildren(); $('resultLine').textContent = `显示 ${entries.length} 条记录`; if (!entries.length) { const empty = node('div','empty'); empty.append(node('span','empty-symbol','▤'), node('h3','', projectEntries().length ? '没有符合条件的条目' : '这里还没有记录'), node('p','',projectEntries().length ? '试着调整搜索或筛选条件' : '从一条笔记、想法或问题开始整理项目')); if (!projectEntries().length) { const action = node('button','primary','＋ 新建条目'); action.addEventListener('click',() => openEntry()); empty.append(action); } list.append(empty); return; } entries.forEach(e => { const btn = node('button','entry' + (selectedId === e.id ? ' selected' : '')); btn.type = 'button'; const head = node('div','entry-head'); head.append(node('span','badge '+e.type,typeNames[e.type]),node('span','entry-title',e.title)); if (e.pinned) head.append(node('span','pin','★')); const summary = node('div','entry-summary',e.body.trim().replace(/\s+/g,' ') || '暂无内容'); const meta = node('div','entry-meta'); meta.append(node('span','',statusNames[e.status]),node('span','meta-sep','·'),node('span','',dateText(e.updatedAt))); e.tags.slice(0,3).forEach(t => meta.append(node('span','tag','#'+t))); btn.append(head,summary,meta); btn.addEventListener('click', () => { selectedId = e.id; renderList(entries); renderDetail(); $('detail').classList.add('mobile-open'); }); list.append(btn); }); }
+    function renderDetail() { const panel = $('detail'); panel.replaceChildren(); const e = data.entries.find(item => item.id === selectedId && item.projectId === data.activeProjectId); if (!e) { panel.classList.remove('mobile-open'); const blank = node('div','detail-placeholder'); blank.append(node('span','','▤'),node('strong','','选择一条记录'),node('div','','在这里查看内容和状态')); panel.append(blank); return; } const top = node('div','detail-top'); top.append(node('span','badge '+e.type,typeNames[e.type])); const actions = node('div','detail-actions'); const back = node('button','icon-btn mobile-menu','←'); back.title = '返回列表'; back.setAttribute('aria-label','返回列表'); back.addEventListener('click',() => panel.classList.remove('mobile-open')); const pin = node('button','icon-btn', e.pinned ? '★' : '☆'); pin.title = e.pinned ? '取消置顶' : '置顶'; pin.setAttribute('aria-label',pin.title); pin.addEventListener('click',() => { e.pinned = !e.pinned; e.updatedAt = new Date().toISOString(); save(); render(); }); const edit = node('button','icon-btn','✎'); edit.title = '编辑条目'; edit.setAttribute('aria-label','编辑条目'); edit.addEventListener('click',() => openEntry(e)); actions.append(back,pin,edit); top.append(actions); panel.append(top,node('h2','',e.title)); const info = node('div','detail-info'); [['状态',statusNames[e.status]],['优先级',priorityNames[e.priority] || '普通'],['更新于',dateText(e.updatedAt)],['标签',e.tags.length ? e.tags.map(t => '#'+t).join('  ') : '无']].forEach(([label,value]) => { info.append(node('span','',label),node('strong',label === '状态' ? 'status '+e.status : '',value)); }); panel.append(info,node('div','detail-body',e.body || '暂无内容')); const foot = node('div','detail-footer'); const statusButton = node('button','subtle-btn',e.status === 'done' ? '重新打开' : '标记完成'); statusButton.addEventListener('click',() => { e.status = e.status === 'done' ? 'open' : 'done'; e.updatedAt = new Date().toISOString(); save(); render(); }); const del = node('button','subtle-btn danger-text','删除'); del.addEventListener('click',() => { if (!confirm(`确定删除“${e.title}”？此操作无法撤销。`)) return; data.entries = data.entries.filter(item => item.id !== e.id); selectedId = null; save(); render(); toast('条目已删除'); }); foot.append(statusButton,del); panel.append(foot); }
+    function render() { if (!data.projects.length) { data = starter(); save(); } const project = currentProject(); data.activeProjectId = project.id; $('breadcrumbName').textContent = project.name; $('projectTitle').textContent = project.name; $('projectDescription').textContent = project.description || '笔记、想法与问题都整理在这里'; renderNav(); const entries = projectEntries(); renderStats(entries); renderTabs(entries); renderList(filteredEntries(entries)); renderDetail(); }
+    function openEntry(entry = null) { editingEntryId = entry?.id || null; $('entryDialogTitle').textContent = entry ? '编辑条目' : '新建条目'; $('entryForm').reset(); $('entryTitle').value = entry?.title || ''; $('entryType').value = entry?.type || (typeFilter === 'all' ? 'note' : typeFilter); $('entryStatus').value = entry?.status || 'open'; $('entryPriority').value = entry?.priority || 'normal'; $('entryBody').value = entry?.body || ''; $('entryTags').value = entry?.tags.join(', ') || ''; $('entryDialog').showModal(); $('entryTitle').focus(); }
+    function openProject(project = null) { editingProjectId = project?.id || null; $('projectDialogTitle').textContent = project ? '项目设置' : '新建项目'; $('projectForm').reset(); $('projectName').value = project?.name || ''; $('projectSummary').value = project?.description || ''; $('deleteProject').hidden = !project; $('projectDialog').showModal(); $('projectName').focus(); }
+    $('entryForm').addEventListener('submit', event => { event.preventDefault(); const title = $('entryTitle').value.trim(); if (!title) return; const now = new Date().toISOString(); const tags = [...new Set($('entryTags').value.split(/[,，]/).map(t => t.trim()).filter(Boolean))].slice(0,20); const fields = { title, type: $('entryType').value, status: $('entryStatus').value, priority: $('entryPriority').value, body: $('entryBody').value.trim(), tags, updatedAt: now }; if (editingEntryId) Object.assign(data.entries.find(e => e.id === editingEntryId),fields); else { const entry = { id: uid(), projectId: data.activeProjectId, createdAt: now, pinned: false, ...fields }; data.entries.unshift(entry); selectedId = entry.id; } save(); $('entryDialog').close(); render(); toast('条目已保存'); });
+    $('projectForm').addEventListener('submit', event => { event.preventDefault(); const name = $('projectName').value.trim(); if (!name) return; const description = $('projectSummary').value.trim(); if (editingProjectId) Object.assign(data.projects.find(p => p.id === editingProjectId), { name, description }); else { const project = { id: uid(), name, description, createdAt: new Date().toISOString() }; data.projects.push(project); data.activeProjectId = project.id; selectedId = null; } save(); $('projectDialog').close(); render(); toast('项目已保存'); });
+    $('deleteProject').addEventListener('click', () => { const project = data.projects.find(p => p.id === editingProjectId); if (!project || !confirm(`确定删除项目“${project.name}”及其中全部记录？此操作无法撤销。`)) return; data.projects = data.projects.filter(p => p.id !== project.id); data.entries = data.entries.filter(e => e.projectId !== project.id); data.activeProjectId = data.projects[0]?.id || null; selectedId = null; save(); $('projectDialog').close(); render(); toast('项目已删除'); });
+    function exportData() { const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `项目札记备份-${new Date().toISOString().slice(0,10)}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000); }
+    $('fileInput').addEventListener('change', async event => { const file = event.target.files[0]; event.target.value = ''; if (!file) return; try { const incoming = JSON.parse(await file.text()); if (!validData(incoming)) throw new Error('格式不正确'); if (!confirm('导入会覆盖当前所有项目和记录。请先导出备份，确定继续吗？')) return; data = incoming; if (!data.projects.length) data = starter(); if (!data.projects.some(p => p.id === data.activeProjectId)) data.activeProjectId = data.projects[0].id; selectedId = null; save(); render(); toast('备份已导入'); } catch { alert('无法导入：请选择本网站导出的 JSON 备份文件。'); } });
+    $('newEntry').addEventListener('click',() => openEntry()); $('addProject').addEventListener('click',() => openProject()); $('editProject').addEventListener('click',() => openProject(currentProject())); $('exportData').addEventListener('click',exportData); $('backupButton').addEventListener('click',exportData); $('importData').addEventListener('click',() => $('fileInput').click()); $('menuButton').addEventListener('click',() => $('sidebar').classList.toggle('open')); $('search').addEventListener('input',render); $('statusFilter').addEventListener('change',render); $('sortBy').addEventListener('change',render); document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click',() => $(button.dataset.close).close())); document.addEventListener('keydown',event => { if (event.key === 'Escape') { $('sidebar').classList.remove('open'); $('detail').classList.remove('mobile-open'); } });
+    render();
+  </script>
+  <script>
+    // English interface layer. Existing project names and user-written content stay as entered.
+    const english = new Map(Object.entries({
+      '项目札记':'Project Notes','项目':'Projects','新建项目':'New project','导出备份':'Export backup','导入备份':'Import backup','新建条目':'New entry','项目设置':'Project settings','笔记、想法与问题都整理在这里':'Keep notes, ideas, and questions together','全部条目':'All entries','笔记':'Notes','想法':'Ideas','待解决问题':'Open issues','工作记录':'Workspace','全部状态':'All statuses','待处理':'Open','进行中':'In progress','已完成':'Done','最近更新':'Recently updated','最近创建':'Recently created','按标题':'Title','全部':'All','问题':'Issues','选择一条记录':'Select an entry','在这里查看内容和状态':'View its content and status here','这里还没有记录':'No entries yet','没有符合条件的条目':'No matching entries','试着调整搜索或筛选条件':'Try changing your search or filters','从一条笔记、想法或问题开始整理项目':'Start with a note, idea, or issue','暂无内容':'No content yet','无':'None','状态':'Status','优先级':'Priority','更新于':'Updated','标签':'Tags','普通':'Normal','重要':'High','低':'Low','重新打开':'Reopen','标记完成':'Mark done','删除':'Delete','编辑条目':'Edit entry','标题':'Title','类型':'Type','内容':'Content','用逗号分隔多个标签':'Separate tags with commas','取消':'Cancel','保存条目':'Save entry','项目名称':'Project name','项目说明':'Project description','删除此项目':'Delete this project','保存项目':'Save project','打开项目菜单':'Open project menu','关闭':'Close','返回列表':'Back to list','取消置顶':'Unpin','置顶':'Pin','项目已保存':'Project saved','条目已保存':'Entry saved','条目已删除':'Entry deleted','项目已删除':'Project deleted','备份已导入':'Backup imported','无法导入：请选择本网站导出的 JSON 备份文件。':'Could not import. Choose a JSON backup exported from this site.','我的项目':'My Project'
+    }));
+    const englishAttrs = new Map(Object.entries({
+      '搜索标题、内容或标签':'Search title, content, or tags','搜索条目':'Search entries','筛选状态':'Filter by status','排序方式':'Sort by','条目类型':'Entry type','条目列表':'Entry list','条目详情':'Entry details','项目列表':'Project list','写下这条记录的主题':'Give this entry a title','背景、下一步、相关链接……':'Background, next steps, links…','例如：设计, 会议, 待验证':'e.g. design, meeting, to verify','例如：产品改版':'e.g. Product redesign','可选':'Optional'
+    }));
+    function translateEnglish(value) {
+      if (english.has(value)) return english.get(value);
+      if (englishAttrs.has(value)) return englishAttrs.get(value);
+      let match = value.match(/^([＋⇩⇧])\s*(新建项目|导出备份|导入备份|新建条目)$/);
+      if (match) return `${match[1]} ${english.get(match[2])}`;
+      match = value.match(/^(全部|笔记|想法|问题) (\d+)$/);
+      if (match) return `${english.get(match[1])} ${match[2]}`;
+      match = value.match(/^显示 (\d+) 条记录$/);
+      if (match) return `Showing ${match[1]} ${match[1] === '1' ? 'entry' : 'entries'}`;
+      match = value.match(/^确定删除“(.+)”？此操作无法撤销。$/);
+      if (match) return `Delete “${match[1]}”? This cannot be undone.`;
+      match = value.match(/^确定删除项目“(.+)”及其中全部记录？此操作无法撤销。$/);
+      if (match) return `Delete project “${match[1]}” and all its entries? This cannot be undone.`;
+      if (value === '导入会覆盖当前所有项目和记录。请先导出备份，确定继续吗？') return 'Importing will replace all current projects and entries. Export a backup first. Continue?';
+      return value;
+    }
+    function translateInterface(root) {
+      if (root.nodeType === Node.TEXT_NODE) {
+        if (root.parentElement?.closest('textarea, script, style')) return;
+        const translated = translateEnglish(root.nodeValue);
+        if (translated !== root.nodeValue) root.nodeValue = translated;
+        return;
+      }
+      if (root.nodeType !== Node.ELEMENT_NODE) return;
+      for (const el of [root, ...root.querySelectorAll('*')]) {
+        for (const attr of ['placeholder','title','aria-label']) {
+          const value = el.getAttribute(attr);
+          if (value) { const translated = translateEnglish(value); if (translated !== value) el.setAttribute(attr, translated); }
+        }
+        for (const child of el.childNodes) if (child.nodeType === Node.TEXT_NODE) translateInterface(child);
+      }
+    }
+    const nativeConfirm = window.confirm.bind(window);
+    const nativeAlert = window.alert.bind(window);
+    window.confirm = message => nativeConfirm(translateEnglish(String(message)));
+    window.alert = message => nativeAlert(translateEnglish(String(message)));
+    new MutationObserver(records => { for (const record of records) { if (record.type === 'characterData') translateInterface(record.target); else for (const item of record.addedNodes) translateInterface(item); } }).observe(document.body, { childList: true, characterData: true, subtree: true });
+    translateInterface(document.body);
+  </script>
+</body>
+</html>
